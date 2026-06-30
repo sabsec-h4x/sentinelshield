@@ -12,15 +12,6 @@
 
 ---
 
-## 📸 Screenshots
-
-> _Add your dashboard screenshot here_
-
-| Dashboard | Attack Blocked | PDF Report |
-|---|---|---|
-| ![Dashboard](screenshots/dashboard.png) | ![Blocked](screenshots/blocked.png) | ![Report](screenshots/report.png) |
-
----
 
 ## ✨ Features
 
