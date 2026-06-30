@@ -1,0 +1,73 @@
+{
+  "category": "SQL Injection",
+  "category_id": "sqli",
+  "severity": "HIGH",
+  "score": 75,
+  "description": "SQL Injection attacks attempt to manipulate database queries by injecting malicious SQL code into input fields.",
+  "rules": [
+    {
+      "id": "SQLI-001",
+      "name": "Classic OR-based SQLi",
+      "pattern": "('|\\\")(\\s)*(or|and)(\\s)+([\\d\\w'\"]+)(\\s)*(=|like)(\\s)*([\\d\\w'\"]+)",
+      "description": "Detects classic ' OR 1=1 style injection",
+      "example": "' OR 1=1--",
+      "score_modifier": 1.0
+    },
+    {
+      "id": "SQLI-002",
+      "name": "UNION SELECT Statement",
+      "pattern": "union(\\s+)(all(\\s+))?select",
+      "description": "Detects UNION SELECT used to extract data from other tables",
+      "example": "1 UNION SELECT username,password FROM users",
+      "score_modifier": 1.2
+    },
+    {
+      "id": "SQLI-003",
+      "name": "SQL Comment Terminator",
+      "pattern": "(--|#|/\\*|\\*/)(\\s|$)",
+      "description": "Detects SQL comment sequences used to truncate queries",
+      "example": "admin'--",
+      "score_modifier": 0.7
+    },
+    {
+      "id": "SQLI-004",
+      "name": "Time-Based Blind SQLi",
+      "pattern": "(sleep\\s*\\(|benchmark\\s*\\(|waitfor\\s+delay|pg_sleep\\s*\\()",
+      "description": "Detects time-delay functions used in blind SQL injection",
+      "example": "1'; SELECT SLEEP(5)--",
+      "score_modifier": 1.5
+    },
+    {
+      "id": "SQLI-005",
+      "name": "Schema Enumeration",
+      "pattern": "(information_schema|sys\\.tables|sysobjects|pg_tables|sqlite_master)",
+      "description": "Detects attempts to enumerate database schema/tables",
+      "example": "SELECT * FROM information_schema.tables",
+      "score_modifier": 1.3
+    },
+    {
+      "id": "SQLI-006",
+      "name": "Stacked Queries",
+      "pattern": ";(\\s)*(select|insert|update|delete|drop|create|alter|exec)",
+      "description": "Detects stacked query injection (multiple statements)",
+      "example": "1; DROP TABLE users--",
+      "score_modifier": 1.4
+    },
+    {
+      "id": "SQLI-007",
+      "name": "SQL Function Abuse",
+      "pattern": "(load_file\\s*\\(|into\\s+outfile|into\\s+dumpfile)",
+      "description": "Detects file read/write via SQL functions (MySQL specific)",
+      "example": "SELECT LOAD_FILE('/etc/passwd')",
+      "score_modifier": 1.5
+    },
+    {
+      "id": "SQLI-008",
+      "name": "Boolean Blind SQLi",
+      "pattern": "(and|or)(\\s)+(['\"]?)(\\d+)(['\"]?)(\\s)*(=|>|<|!=)(\\s)*(['\"]?)(\\d+)",
+      "description": "Detects boolean-based blind SQLi patterns",
+      "example": "1 AND 1=1",
+      "score_modifier": 0.9
+    }
+  ]
+}

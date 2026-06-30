@@ -1,0 +1,86 @@
+# ─────────────────────────────────────────────────────────────────
+#  docker-compose.yml — Run Everything With ONE Command
+#
+#  HOW TO USE:
+#    docker-compose up
+#
+#  This starts:
+#    1. SentinelShield Backend  → http://localhost:8000
+#    2. Redis (rate limiter)    → localhost:6379
+#    3. React Frontend          → http://localhost:3000
+#
+#  Stop everything:
+#    docker-compose down
+# ─────────────────────────────────────────────────────────────────
+
+version: '3.8'
+
+services:
+
+  # ── Redis — Rate Limiter ──────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: sentinel_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── SentinelShield Backend ────────────────────────────────────
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: sentinel_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=sqlite:////app/data/sentinelshield.db
+      - DEBUG=false
+      - RATE_LIMIT_REQUESTS=100
+      - RATE_LIMIT_WINDOW_SEC=60
+      - AUTO_BAN_THRESHOLD=5
+      - AUTO_BAN_DURATION_SEC=86400
+      - SCORE_FLAG_THRESHOLD=30
+      - SCORE_BLOCK_THRESHOLD=60
+    volumes:
+      - sentinel_data:/app/data    # Persistent database storage
+      - sentinel_ml:/app/ml        # Persistent ML model storage
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── React Frontend ────────────────────────────────────────────
+  frontend:
+    image: node:18-alpine
+    container_name: sentinel_frontend
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../sentinel_frontend:/app
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - CI=false
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+# ── Persistent Volumes ────────────────────────────────────────────
+volumes:
+  sentinel_data:   # Stores SQLite database
+  sentinel_ml:     # Stores trained ML model
