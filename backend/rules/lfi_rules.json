@@ -1,0 +1,49 @@
+{
+  "category": "Local File Inclusion / Path Traversal",
+  "category_id": "lfi",
+  "severity": "HIGH",
+  "score": 70,
+  "description": "LFI attacks trick the server into reading sensitive files by manipulating file path inputs.",
+  "rules": [
+    {
+      "id": "LFI-001",
+      "name": "Directory Traversal Sequences",
+      "pattern": "(\\.{2}[\\/\\\\]){2,}",
+      "description": "Detects ../ and ..\\ sequences used to escape the web root",
+      "example": "../../etc/passwd",
+      "score_modifier": 1.2
+    },
+    {
+      "id": "LFI-002",
+      "name": "Sensitive Unix Files",
+      "pattern": "(etc/(passwd|shadow|hosts|group|sudoers|crontab)|proc/self/environ|var/log/|home/[^/]+/\\.ssh)",
+      "description": "Detects attempts to access known sensitive Linux system files",
+      "example": "../../../../etc/passwd",
+      "score_modifier": 1.5
+    },
+    {
+      "id": "LFI-003",
+      "name": "Sensitive Windows Files",
+      "pattern": "(win(dows)?[\\/\\\\](system32|win\\.ini|boot\\.ini|repair)|c:\\\\|system32\\\\cmd\\.exe)",
+      "description": "Detects attempts to access sensitive Windows system files",
+      "example": "..\\..\\windows\\win.ini",
+      "score_modifier": 1.5
+    },
+    {
+      "id": "LFI-004",
+      "name": "PHP Wrapper Abuse",
+      "pattern": "(php://|phar://|zip://|glob://|data://|expect://|input://|filter/)",
+      "description": "Detects PHP stream wrappers used to bypass file restrictions",
+      "example": "php://filter/convert.base64-encode/resource=index.php",
+      "score_modifier": 1.4
+    },
+    {
+      "id": "LFI-005",
+      "name": "Null Byte Injection",
+      "pattern": "(%00|\\\\x00|\\\\u0000)",
+      "description": "Detects null byte injection used to truncate file extensions",
+      "example": "../../etc/passwd%00.jpg",
+      "score_modifier": 1.1
+    }
+  ]
+}

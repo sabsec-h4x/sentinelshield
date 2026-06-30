@@ -1,0 +1,49 @@
+{
+  "category": "Server-Side Request Forgery (SSRF)",
+  "category_id": "ssrf",
+  "severity": "HIGH",
+  "score": 80,
+  "description": "SSRF attacks force the server to make requests to unintended locations — often internal services, cloud metadata endpoints, or localhost.",
+  "rules": [
+    {
+      "id": "SSRF-001",
+      "name": "Cloud Metadata Endpoints",
+      "pattern": "(169\\.254\\.169\\.254|metadata\\.google\\.internal|169\\.254\\.0\\.0|metadata\\.azure\\.com)",
+      "description": "Detects AWS/GCP/Azure instance metadata endpoint access",
+      "example": "http://169.254.169.254/latest/meta-data/iam/security-credentials/",
+      "score_modifier": 2.0
+    },
+    {
+      "id": "SSRF-002",
+      "name": "Localhost / Loopback",
+      "pattern": "(localhost|127\\.0\\.0\\.1|127\\.\\d+\\.\\d+\\.\\d+|0\\.0\\.0\\.0|::1|\\[::1\\])",
+      "description": "Detects attempts to access loopback addresses",
+      "example": "http://localhost:8080/admin",
+      "score_modifier": 1.5
+    },
+    {
+      "id": "SSRF-003",
+      "name": "Internal IP Ranges",
+      "pattern": "(10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(1[6-9]|2[0-9]|3[01])\\.\\d{1,3}\\.\\d{1,3}|192\\.168\\.\\d{1,3}\\.\\d{1,3})",
+      "description": "Detects requests targeting private/internal IP address ranges",
+      "example": "http://192.168.1.1/router-admin",
+      "score_modifier": 1.3
+    },
+    {
+      "id": "SSRF-004",
+      "name": "Alternate Protocol Schemes",
+      "pattern": "(dict://|gopher://|ftp://|file://|ldap://|tftp://|sftp://|ssh://)",
+      "description": "Detects non-HTTP protocol schemes commonly used in SSRF",
+      "example": "gopher://127.0.0.1:25/MAIL",
+      "score_modifier": 1.6
+    },
+    {
+      "id": "SSRF-005",
+      "name": "DNS Rebinding Indicators",
+      "pattern": "(nip\\.io|xip\\.io|sslip\\.io|localtest\\.me|\\d+\\.\\d+\\.\\d+\\.\\d+\\.nip)",
+      "description": "Detects DNS rebinding helper services used to bypass SSRF filters",
+      "example": "http://127.0.0.1.nip.io/admin",
+      "score_modifier": 1.4
+    }
+  ]
+}

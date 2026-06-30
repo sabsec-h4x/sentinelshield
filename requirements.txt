@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────
+#  SentinelShield — Python Dependencies
+#  Install with: pip install -r requirements.txt
+# ─────────────────────────────────────────────
+
+# Web Framework — FastAPI is faster than Flask and has built-in docs
+fastapi==0.111.0
+
+# ASGI Server — runs our FastAPI app
+uvicorn[standard]==0.29.0
+
+# Database ORM — lets us use Python classes instead of raw SQL
+sqlalchemy==2.0.30
+
+# Data Validation — FastAPI uses this to validate request/response shapes
+pydantic==2.7.1
+
+# Environment variables — reads secrets from .env file
+python-dotenv==1.0.1
+
+# HTTP client — used in the attack simulator to send test requests
+httpx==0.27.0
+
+# Machine Learning — Isolation Forest for Zero-Day anomaly detection (Phase 2)
+scikit-learn==1.4.2
+numpy==1.26.4
+
+# Redis client — for rate limiting (Phase 2)
+redis==5.0.4
+
+# GeoIP — for blocking requests by country/IP reputation (Phase 2)
+geoip2==4.8.0
+
+# WebSockets — for real-time dashboard alerts (Phase 3)
+websockets==12.0

